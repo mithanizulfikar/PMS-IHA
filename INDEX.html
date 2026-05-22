@@ -1,0 +1,1334 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ERP IHA — Project & Ticket Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f4f0;
+  --bg2: #ffffff;
+  --bg3: #eeecea;
+  --border: #e0ded8;
+  --border2: #ccc9c0;
+  --text: #18170f;
+  --text2: #6b6758;
+  --text3: #a09d93;
+  --accent: #1a6b3c;
+  --accent-light: #22c55e;
+  --accentbg: #f0fdf4;
+  --accentborder: #bbf7d0;
+  --gold: #b8960c;
+  --goldbg: #fefce8;
+  --blue: #1d4ed8;
+  --bluebg: #eff6ff;
+  --red: #dc2626;
+  --redbg: #fef2f2;
+  --yellow: #ca8a04;
+  --yellowbg: #fefce8;
+  --purple: #7c3aed;
+  --purplebg: #f5f3ff;
+  --shadow: 0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+  --shadow-lg: 0 12px 48px rgba(0,0,0,0.14);
+  --radius: 10px;
+  --radius-sm: 6px;
+  --radius-lg: 16px;
+  --sidebar-bg: #0d1f14;
+  --sidebar-border: #1a3322;
+  --sidebar-text: #8aad95;
+  --sidebar-active: #22c55e;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.5;}
+
+.view{display:none;min-height:100vh;}
+.view.active{display:flex;}
+
+/* ══ LOGO SVG ══ */
+.erp-logo-svg{display:flex;align-items:center;gap:10px;}
+.erp-logo-mark{flex-shrink:0;}
+
+/* ══ LOGIN ══ */
+#view-login{align-items:center;justify-content:center;background:var(--sidebar-bg);flex-direction:column;}
+#view-login::before{
+  content:'';position:fixed;inset:0;
+  background:radial-gradient(ellipse at 20% 50%, rgba(34,197,94,0.08) 0%, transparent 60%),
+             radial-gradient(ellipse at 80% 20%, rgba(26,107,60,0.12) 0%, transparent 50%);
+  pointer-events:none;
+}
+.login-wrap{position:relative;z-index:1;width:100%;max-width:420px;padding:20px;}
+.login-logo-area{text-align:center;margin-bottom:36px;animation:fadeUp .6s ease both;}
+.login-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:var(--radius-lg);padding:36px;backdrop-filter:blur(12px);animation:fadeUp .6s .1s ease both;}
+.login-card h2{font-size:22px;font-weight:700;color:white;margin-bottom:6px;}
+.login-card p{font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:28px;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+@keyframes slideIn{from{opacity:0;transform:translateX(20px);}to{opacity:1;transform:translateX(0);}}
+
+.form-label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,0.4);margin-bottom:7px;}
+.form-label-dark{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:7px;}
+
+input.dark-input,select.dark-input{
+  width:100%;padding:12px 14px;
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:var(--radius-sm);
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;
+  color:white;outline:none;transition:all .2s;appearance:none;
+}
+input.dark-input::placeholder{color:rgba(255,255,255,0.25);}
+input.dark-input:focus,select.dark-input:focus{border-color:var(--accent-light);background:rgba(34,197,94,0.08);box-shadow:0 0 0 3px rgba(34,197,94,0.12);}
+
+input.light-input,select.light-input,textarea.light-input{
+  width:100%;padding:11px 14px;
+  background:var(--bg);border:1.5px solid var(--border);
+  border-radius:var(--radius-sm);font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:14px;color:var(--text);outline:none;transition:all .2s;appearance:none;
+}
+input.light-input::placeholder,textarea.light-input::placeholder{color:var(--text3);}
+input.light-input:focus,select.light-input:focus,textarea.light-input:focus{border-color:var(--accent);background:white;box-shadow:0 0 0 3px rgba(26,107,60,0.1);}
+textarea.light-input{resize:vertical;min-height:100px;}
+
+.login-error{background:rgba(220,38,38,.15);border:1px solid rgba(220,38,38,.3);color:#fca5a5;border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;margin-bottom:16px;display:none;}
+
+/* ══ BUTTONS ══ */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:10px 18px;border-radius:var(--radius-sm);font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .18s;text-decoration:none;white-space:nowrap;}
+.btn svg{width:14px;height:14px;flex-shrink:0;}
+.btn-primary{background:var(--accent);color:white;}
+.btn-primary:hover{background:#155a31;transform:translateY(-1px);box-shadow:0 4px 14px rgba(26,107,60,0.3);}
+.btn-primary:active{transform:translateY(0);}
+.btn-green-dark{background:var(--accent-light);color:#052e0f;}
+.btn-green-dark:hover{background:#16a34a;}
+.btn-full{width:100%;justify-content:center;padding:13px;font-size:15px;border-radius:var(--radius);}
+.btn-secondary{background:var(--bg3);color:var(--text2);border:1.5px solid var(--border);}
+.btn-secondary:hover{background:var(--border);color:var(--text);}
+.btn-ghost{background:transparent;color:var(--text2);padding:7px 11px;}
+.btn-ghost:hover{background:var(--bg3);}
+.btn-danger{background:var(--red);color:white;}
+.btn-danger:hover{background:#b91c1c;}
+.btn-sm{padding:6px 12px;font-size:12px;}
+.btn-icon{padding:7px;background:var(--bg3);border:1.5px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;justify-content:center;}
+.btn-icon:hover{background:var(--border);}
+.btn-icon svg{width:15px;height:15px;display:block;}
+.btn-warning{background:var(--yellowbg);color:var(--yellow);border:1px solid #fde68a;}
+.btn-warning:hover{background:#fef08a;}
+
+/* ══ ADMIN LAYOUT ══ */
+#view-admin{flex-direction:column;}
+.admin-wrapper{display:flex;height:100vh;width:100%;overflow:hidden;}
+
+/* Sidebar */
+.sidebar{width:248px;min-width:248px;background:var(--sidebar-bg);display:flex;flex-direction:column;border-right:1px solid var(--sidebar-border);overflow-y:auto;}
+.sidebar-header{padding:22px 20px 20px;border-bottom:1px solid var(--sidebar-border);}
+.sidebar-brand{display:flex;align-items:center;gap:11px;}
+.sidebar-brand-text{line-height:1.2;}
+.brand-name{font-size:15px;font-weight:800;color:white;letter-spacing:-.02em;}
+.brand-sub{font-size:10px;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:.1em;}
+
+.nav-section{padding:16px 12px 0;}
+.nav-section-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#2d4d37;padding:0 8px;margin-bottom:6px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;cursor:pointer;color:var(--sidebar-text);font-size:13px;font-weight:500;transition:all .15s;margin-bottom:2px;position:relative;}
+.nav-item svg{width:17px;height:17px;flex-shrink:0;}
+.nav-item:hover{background:rgba(255,255,255,0.05);color:#c8dece;}
+.nav-item.active{background:rgba(34,197,94,0.12);color:var(--sidebar-active);}
+.nav-item .nbadge{margin-left:auto;background:var(--accent-light);color:#052e0f;font-size:10px;font-weight:800;padding:1px 7px;border-radius:100px;min-width:20px;text-align:center;}
+.nav-item.active .nbadge{background:rgba(34,197,94,0.3);color:var(--sidebar-active);}
+
+.sidebar-user{padding:14px 16px;border-top:1px solid var(--sidebar-border);margin-top:auto;display:flex;align-items:center;gap:10px;}
+.sidebar-user-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
+.sidebar-user-info{flex:1;min-width:0;}
+.sidebar-user-name{font-size:13px;font-weight:600;color:white;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.sidebar-user-role{font-size:11px;color:var(--sidebar-text);}
+.sidebar-logout{background:none;border:none;cursor:pointer;color:var(--sidebar-text);padding:6px;border-radius:6px;transition:all .15s;display:flex;}
+.sidebar-logout:hover{background:rgba(255,255,255,0.08);color:white;}
+.sidebar-logout svg{width:16px;height:16px;}
+
+/* Main */
+.main-content{flex:1;overflow-y:auto;background:var(--bg);}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10;}
+.topbar-title{font-size:17px;font-weight:700;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+
+.page{display:none;padding:26px;}
+.page.active{display:block;animation:slideIn .3s ease;}
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;gap:16px;}
+.page-header-left h2{font-size:20px;font-weight:800;}
+.page-header-left p{font-size:13px;color:var(--text2);margin-top:2px;}
+
+/* Stats */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+.stat-card{background:var(--bg2);border-radius:var(--radius);border:1.5px solid var(--border);padding:18px 20px;box-shadow:var(--shadow);position:relative;overflow:hidden;}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.stat-card.blue::before{background:var(--blue);}
+.stat-card.green::before{background:var(--accent);}
+.stat-card.yellow::before{background:var(--yellow);}
+.stat-card.red::before{background:var(--red);}
+.stat-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:8px;}
+.stat-val{font-size:32px;font-weight:800;line-height:1;letter-spacing:-.02em;}
+.stat-sub{font-size:12px;color:var(--text3);margin-top:4px;}
+
+/* Card */
+.card{background:var(--bg2);border-radius:var(--radius);border:1.5px solid var(--border);box-shadow:var(--shadow);overflow:hidden;}
+.card-header{display:flex;align-items:center;justify-content:space-between;padding:15px 20px;border-bottom:1px solid var(--border);}
+.card-title{font-size:14px;font-weight:700;}
+
+/* Table */
+table{width:100%;border-collapse:collapse;}
+thead th{padding:10px 16px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text2);background:var(--bg3);border-bottom:1px solid var(--border);}
+tbody tr{border-bottom:1px solid var(--border);transition:background .1s;cursor:pointer;}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:var(--bg3);}
+td{padding:12px 16px;font-size:13px;vertical-align:middle;}
+
+/* Badges */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;white-space:nowrap;}
+.badge-open{background:var(--bluebg);color:var(--blue);}
+.badge-progress{background:var(--yellowbg);color:var(--yellow);}
+.badge-closed{background:var(--accentbg);color:var(--accent);}
+.badge-urgent{background:var(--redbg);color:var(--red);}
+.badge-high{background:#fff7ed;color:#ea580c;}
+.badge-medium{background:var(--yellowbg);color:var(--yellow);}
+.badge-low{background:var(--accentbg);color:var(--accent);}
+.badge-admin{background:#fdf2ff;color:#7e22ce;}
+.badge-agent{background:var(--bluebg);color:var(--blue);}
+.badge-viewer{background:var(--bg3);color:var(--text2);}
+.badge-active{background:var(--accentbg);color:var(--accent);}
+.badge-inactive{background:var(--bg3);color:var(--text3);}
+.pdot{width:7px;height:7px;border-radius:50%;display:inline-block;flex-shrink:0;}
+.pdot-urgent{background:var(--red);}
+.pdot-high{background:#ea580c;}
+.pdot-medium{background:var(--yellow);}
+.pdot-low{background:var(--accent);}
+
+/* Avatar */
+.avatar{width:30px;height:30px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+.ticket-id{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3);font-weight:500;}
+.tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;background:var(--bg3);color:var(--text2);border:1px solid var(--border);margin-right:3px;}
+
+/* Filters */
+.filters{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.search-wrap{position:relative;}
+.search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--text3);pointer-events:none;}
+.search-input{padding:8px 12px 8px 32px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg);font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;outline:none;width:200px;color:var(--text);}
+.search-input:focus{border-color:var(--accent);background:white;}
+select.fsel{padding:8px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg);font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;outline:none;cursor:pointer;color:var(--text);appearance:none;}
+select.fsel:focus{border-color:var(--accent);}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:none;align-items:flex-start;justify-content:center;padding:36px 20px;overflow-y:auto;backdrop-filter:blur(3px);}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--bg2);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);width:100%;max-width:620px;animation:fadeUp .3s cubic-bezier(.16,1,.3,1);overflow:hidden;}
+.modal-sm{max-width:440px;}
+.modal-header{display:flex;align-items:flex-start;justify-content:space-between;padding:22px 26px 18px;border-bottom:1px solid var(--border);}
+.modal-header h3{font-size:17px;font-weight:800;}
+.modal-body{padding:22px 26px;}
+.close-btn{background:var(--bg3);border:1.5px solid var(--border);border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;flex-shrink:0;}
+.close-btn:hover{background:var(--border);}
+.close-btn svg{width:14px;height:14px;}
+
+/* Ticket detail */
+.ticket-meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;background:var(--bg3);border-radius:var(--radius);padding:14px;border:1px solid var(--border);}
+.meta-item{display:flex;flex-direction:column;gap:3px;}
+.meta-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);}
+.meta-val{font-size:13px;font-weight:500;}
+
+/* Reply form */
+.reply-form{border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-top:14px;}
+.reply-form-head{background:var(--bg3);padding:9px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);font-size:12px;font-weight:600;color:var(--text2);}
+.reply-textarea{width:100%;border:none;padding:12px 14px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;min-height:90px;resize:vertical;background:white;outline:none;}
+.reply-form-foot{background:var(--bg3);padding:9px 14px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+
+/* Toast */
+.toast{position:fixed;bottom:22px;right:22px;background:var(--sidebar-bg);color:white;padding:11px 18px;border-radius:var(--radius);font-size:13px;font-weight:500;z-index:1000;display:none;align-items:center;gap:8px;box-shadow:var(--shadow-lg);border:1px solid var(--sidebar-border);}
+.toast.show{display:flex;}
+.toast svg{width:15px;height:15px;color:var(--accent-light);}
+
+/* Two col */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+
+/* User cards */
+.user-card{background:var(--bg2);border-radius:var(--radius);border:1.5px solid var(--border);padding:18px 20px;display:flex;align-items:center;gap:14px;box-shadow:var(--shadow);transition:all .2s;}
+.user-card:hover{border-color:var(--border2);box-shadow:var(--shadow-md);}
+.user-card-info{flex:1;min-width:0;}
+.user-card-name{font-size:14px;font-weight:700;margin-bottom:3px;}
+.user-card-email{font-size:12px;color:var(--text2);}
+.user-card-actions{display:flex;gap:7px;align-items:center;}
+
+/* Gmail cards */
+.gmail-card{background:var(--bg2);border-radius:var(--radius);border:1.5px solid var(--border);padding:16px 18px;display:flex;align-items:center;gap:14px;box-shadow:var(--shadow);margin-bottom:10px;transition:all .2s;}
+.gmail-card:hover{border-color:var(--border2);}
+
+/* Link generator */
+.link-hero{background:var(--sidebar-bg);border-radius:var(--radius-lg);padding:28px;margin-bottom:22px;position:relative;overflow:hidden;}
+.link-hero::after{content:'';position:absolute;bottom:-50px;right:-50px;width:200px;height:200px;background:radial-gradient(circle,rgba(34,197,94,0.2) 0%,transparent 70%);border-radius:50%;pointer-events:none;}
+.link-hero h3{font-size:16px;font-weight:700;color:white;margin-bottom:6px;}
+.link-hero p{font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:18px;}
+.link-box{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:var(--radius-sm);padding:10px 16px;}
+.link-txt{flex:1;font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(255,255,255,0.7);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.btn-copy{background:var(--accent-light);color:#052e0f;border:none;border-radius:6px;padding:7px 14px;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;flex-shrink:0;}
+.btn-copy:hover{background:#16a34a;color:white;}
+.btn-copy.copied{background:white;color:var(--accent);}
+
+/* Activity */
+.act-list{list-style:none;}
+.act-item{display:flex;align-items:flex-start;gap:11px;padding:11px 0;border-bottom:1px solid var(--border);}
+.act-item:last-child{border-bottom:none;}
+.act-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.act-icon svg{width:13px;height:13px;}
+.act-text{font-size:13px;line-height:1.5;}
+.act-time{font-size:11px;color:var(--text3);margin-top:1px;}
+
+/* Empty */
+.empty{text-align:center;padding:56px 20px;color:var(--text2);}
+.empty svg{width:44px;height:44px;margin:0 auto 14px;opacity:.25;}
+.empty h3{font-size:15px;font-weight:600;margin-bottom:5px;}
+.empty p{font-size:13px;}
+
+/* Public submit form */
+#view-submit{flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;background:var(--bg);min-height:100vh;}
+.pub-card{background:var(--bg2);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);width:100%;max-width:540px;overflow:hidden;animation:fadeUp .5s cubic-bezier(.16,1,.3,1);}
+.pub-header{background:var(--sidebar-bg);padding:28px 32px;position:relative;overflow:hidden;}
+.pub-header::before{content:'';position:absolute;top:-80px;right:-60px;width:220px;height:220px;background:radial-gradient(circle,rgba(34,197,94,0.15) 0%,transparent 70%);border-radius:50%;}
+.pub-header-brand{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
+.pub-header h1{font-size:23px;font-weight:800;color:white;margin-bottom:6px;}
+.pub-header p{font-size:13px;color:rgba(255,255,255,0.4);}
+.pub-body{padding:28px 32px;}
+.pub-success{text-align:center;padding:44px 32px;display:none;}
+.success-circle{width:68px;height:68px;background:var(--accentbg);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;}
+.success-circle svg{width:34px;height:34px;color:var(--accent);}
+.ticket-ref{font-family:'JetBrains Mono',monospace;font-size:17px;font-weight:500;background:var(--bg3);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:9px 20px;display:inline-block;color:var(--accent);letter-spacing:.1em;margin-bottom:20px;}
+
+/* Settings toggle */
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border);}
+.settings-row:last-child{border-bottom:none;}
+.settings-row-label{font-size:13px;font-weight:600;}
+.settings-row-desc{font-size:12px;color:var(--text2);}
+
+/* Form row */
+.frow{margin-bottom:16px;}
+.frow label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:6px;}
+.frow label .req{color:var(--red);}
+.frow-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;}
+
+/* Divider */
+.divider-text{display:flex;align-items:center;gap:12px;font-size:12px;color:var(--text3);margin:14px 0;}
+.divider-text::before,.divider-text::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* Danger zone */
+.danger-zone{border-color:#fca5a5!important;}
+.danger-title{color:var(--red)!important;}
+
+/* Role chip */
+.role-chip{padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+
+/* Embed code block */
+.code-block{background:var(--bg3);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:14px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text2);line-height:1.9;overflow-x:auto;}
+
+/* Gmail add form */
+.gmail-add-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:20px;transition:all .2s;}
+.gmail-add-zone:hover{border-color:var(--accent);background:var(--accentbg);}
+.gmail-add-zone.expanded{border-style:solid;border-color:var(--border);background:var(--bg3);}
+.gmail-oauth-btn{display:flex;align-items:center;gap:10px;padding:11px 18px;background:white;border:1.5px solid var(--border2);border-radius:var(--radius-sm);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:600;color:var(--text);width:100%;justify-content:center;transition:all .2s;box-shadow:var(--shadow);}
+.gmail-oauth-btn:hover{border-color:var(--accent);background:var(--accentbg);}
+.gmail-oauth-btn svg{width:20px;height:20px;}
+
+@media(max-width:900px){.stats-grid{grid-template-columns:1fr 1fr;}.two-col{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════
+     LOGIN
+════════════════════════════════ -->
+<div id="view-login" class="view">
+<div class="login-wrap">
+  <div class="login-logo-area">
+    <!-- ERP IHA LOGO -->
+    <svg width="220" height="64" viewBox="0 0 220 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Hexagon mark -->
+      <polygon points="28,4 52,17 52,43 28,56 4,43 4,17" fill="none" stroke="#22c55e" stroke-width="2.5"/>
+      <polygon points="28,12 44,21 44,39 28,48 12,39 12,21" fill="rgba(34,197,94,0.12)"/>
+      <!-- E letter inside hex -->
+      <text x="28" y="36" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif" font-weight="800" font-size="20" fill="#22c55e">E</text>
+      <!-- ERP IHA text -->
+      <text x="62" y="28" font-family="Plus Jakarta Sans,sans-serif" font-weight="800" font-size="22" fill="white" letter-spacing="-0.5">ERP</text>
+      <text x="62" y="52" font-family="Plus Jakarta Sans,sans-serif" font-weight="700" font-size="18" fill="#22c55e" letter-spacing="3">IHA</text>
+      <!-- underline accent -->
+      <rect x="62" y="56" width="60" height="2.5" rx="1.25" fill="#22c55e" opacity="0.5"/>
+      <!-- by Zulfee Mithani -->
+      <text x="130" y="52" font-family="Plus Jakarta Sans,sans-serif" font-weight="400" font-size="10" fill="rgba(255,255,255,0.25)" letter-spacing="0.5">by Zulfee Mithani</text>
+    </svg>
+    <p style="color:rgba(255,255,255,0.3);font-size:12px;margin-top:10px;">Project & Support Management System</p>
+  </div>
+  <div class="login-card">
+    <h2>Welcome back</h2>
+    <p>Sign in to access your dashboard.</p>
+    <div class="login-error" id="login-err">Invalid username or password.</div>
+    <div class="frow">
+      <label class="form-label">Username</label>
+      <input class="dark-input" type="text" id="l-user" placeholder="admin" value="admin">
+    </div>
+    <div class="frow">
+      <label class="form-label">Password</label>
+      <input class="dark-input" type="password" id="l-pass" placeholder="••••••••" value="admin123">
+    </div>
+    <button class="btn btn-green-dark btn-full" style="margin-top:8px" onclick="doLogin()">Sign In</button>
+    <p style="text-align:center;margin-top:14px;font-size:12px;color:rgba(255,255,255,0.25)">Default: admin / admin123</p>
+  </div>
+</div>
+</div>
+
+<!-- ════════════════════════════════
+     ADMIN
+════════════════════════════════ -->
+<div id="view-admin" class="view">
+<div class="admin-wrapper">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-brand">
+        <!-- Sidebar logo (compact) -->
+        <svg width="38" height="38" viewBox="0 0 56 56" fill="none">
+          <polygon points="28,3 53,16.5 53,43.5 28,57 3,43.5 3,16.5" fill="none" stroke="#22c55e" stroke-width="2.5"/>
+          <polygon points="28,10 46,20.5 46,39.5 28,50 10,39.5 10,20.5" fill="rgba(34,197,94,0.1)"/>
+          <text x="28" y="36" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif" font-weight="800" font-size="18" fill="#22c55e">E</text>
+        </svg>
+        <div class="sidebar-brand-text">
+          <div class="brand-name">ERP IHA</div>
+          <div class="brand-sub">by Zulfee Mithani</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-section" style="margin-top:8px">
+      <div class="nav-section-label">Main</div>
+      <div class="nav-item active" onclick="showPage('dashboard',this)">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>
+        Dashboard
+      </div>
+      <div class="nav-item" onclick="showPage('tickets',this)">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/></svg>
+        Tickets
+        <span class="nbadge" id="nav-open-badge">0</span>
+      </div>
+      <div class="nav-item" onclick="showPage('users',this)" id="nav-users">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        Users
+      </div>
+      <div class="nav-item" onclick="showPage('gmail',this)">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+        Gmail Accounts
+      </div>
+      <div class="nav-item" onclick="showPage('publink',this)">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+        Public Link
+      </div>
+      <div class="nav-item" onclick="showPage('settings',this)">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
+        Settings
+      </div>
+    </div>
+
+    <div class="sidebar-user" id="sidebar-user-info">
+      <div class="sidebar-user-avatar" id="sidebar-avatar"></div>
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name" id="sidebar-uname">Admin</div>
+        <div class="sidebar-user-role" id="sidebar-urole">Administrator</div>
+      </div>
+      <button class="sidebar-logout" onclick="doLogout()" title="Sign out">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main-content">
+    <div class="topbar">
+      <span class="topbar-title" id="topbar-title">Dashboard</span>
+      <div class="topbar-right">
+        <button class="btn btn-secondary btn-sm" onclick="showPage('publink',null)">
+          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+          Share Link
+        </button>
+        <div id="topbar-user-chip" style="display:flex;align-items:center;gap:8px;background:var(--bg3);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:5px 12px;font-size:13px;font-weight:600"></div>
+      </div>
+    </div>
+
+    <!-- ── DASHBOARD ── -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-header">
+        <div class="page-header-left"><h2>Dashboard</h2><p>Welcome to ERP IHA — your support overview.</p></div>
+        <button class="btn btn-primary btn-sm" onclick="openNewTicketModal()">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+          New Ticket
+        </button>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card blue"><div class="stat-label">Total Tickets</div><div class="stat-val" id="s-total">0</div><div class="stat-sub">All time</div></div>
+        <div class="stat-card yellow"><div class="stat-label">Open</div><div class="stat-val" id="s-open">0</div><div class="stat-sub">Awaiting response</div></div>
+        <div class="stat-card green"><div class="stat-label">Closed</div><div class="stat-val" id="s-closed">0</div><div class="stat-sub">Resolved</div></div>
+        <div class="stat-card red"><div class="stat-label">Urgent</div><div class="stat-val" id="s-urgent">0</div><div class="stat-sub">Needs attention</div></div>
+      </div>
+      <div class="two-col">
+        <div class="card"><div class="card-header"><span class="card-title">Recent Tickets</span></div><div id="dash-recent"></div></div>
+        <div class="card"><div class="card-header"><span class="card-title">Activity Feed</span></div><div style="padding:14px 18px"><ul class="act-list" id="act-feed"></ul></div></div>
+      </div>
+    </div>
+
+    <!-- ── TICKETS ── -->
+    <div class="page" id="page-tickets">
+      <div class="page-header">
+        <div class="page-header-left"><h2>All Tickets</h2><p>Manage and respond to support tickets.</p></div>
+        <button class="btn btn-primary btn-sm" onclick="openNewTicketModal()">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+          New Ticket
+        </button>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="filters">
+            <div class="search-wrap">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/></svg>
+              <input class="search-input" type="text" id="t-search" placeholder="Search tickets…" oninput="renderTickets()">
+            </div>
+            <select class="fsel" id="f-status" onchange="renderTickets()">
+              <option value="">All Status</option>
+              <option>Open</option><option>In Progress</option><option>Closed</option>
+            </select>
+            <select class="fsel" id="f-priority" onchange="renderTickets()">
+              <option value="">All Priority</option>
+              <option>Urgent</option><option>High</option><option>Medium</option><option>Low</option>
+            </select>
+          </div>
+        </div>
+        <table><thead><tr>
+          <th>ID</th><th>Subject</th><th>Submitter</th><th>Category</th>
+          <th>Priority</th><th>Status</th><th>Assigned</th><th>Created</th><th></th>
+        </tr></thead>
+        <tbody id="t-tbody"></tbody></table>
+        <div id="t-empty" class="empty" style="display:none">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/></svg>
+          <h3>No tickets found</h3><p>Adjust filters or add a new ticket.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── USERS ── -->
+    <div class="page" id="page-users">
+      <div class="page-header">
+        <div class="page-header-left"><h2>User Management</h2><p>Add and manage staff accounts.</p></div>
+        <button class="btn btn-primary btn-sm" id="add-user-btn" onclick="openUserModal()">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+          Add User
+        </button>
+      </div>
+      <div id="users-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px"></div>
+      <div id="users-empty" class="empty card" style="display:none;margin-top:0">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        <h3>No users yet</h3><p>Add your first team member above.</p>
+      </div>
+    </div>
+
+    <!-- ── GMAIL ── -->
+    <div class="page" id="page-gmail">
+      <div class="page-header">
+        <div class="page-header-left"><h2>Gmail Accounts</h2><p>Connect Gmail to send and receive ticket emails.</p></div>
+      </div>
+      <div id="gmail-list" style="margin-bottom:18px"></div>
+      <div class="gmail-add-zone" id="gmail-zone" onclick="expandGmailZone()">
+        <div id="gmail-zone-ph" style="display:flex;align-items:center;gap:12px;justify-content:center;cursor:pointer">
+          <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" style="color:var(--text3)"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <div><div style="font-weight:700;font-size:14px">Connect Gmail Account</div><div style="font-size:12px;color:var(--text2)">Click to add via Google OAuth or SMTP App Password</div></div>
+        </div>
+        <div id="gmail-zone-form" style="display:none">
+          <h3 style="font-size:15px;font-weight:800;margin-bottom:4px">Connect Gmail</h3>
+          <p style="font-size:13px;color:var(--text2);margin-bottom:18px">Emails will route through this account for ticket notifications and replies.</p>
+          <button class="gmail-oauth-btn" onclick="gmailOAuth(event)">
+            <svg viewBox="0 0 48 48" width="20" height="20"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+            Continue with Google OAuth
+          </button>
+          <div class="divider-text">or manual SMTP</div>
+          <div class="frow"><label>Display Name</label><input class="light-input" type="text" id="gm-name" placeholder="ERP IHA Support"></div>
+          <div class="frow"><label>Gmail Address</label><input class="light-input" type="email" id="gm-email" placeholder="support@erpihia.com"></div>
+          <div class="frow"><label>App Password</label><input class="light-input" type="text" id="gm-pass" placeholder="xxxx xxxx xxxx xxxx" style="font-family:'JetBrains Mono',monospace"></div>
+          <div style="display:flex;gap:10px;margin-top:12px">
+            <button class="btn btn-primary" onclick="addGmail(event)">Connect Account</button>
+            <button class="btn btn-secondary" onclick="collapseGmailZone(event)">Cancel</button>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:20px">
+        <div class="card-header"><span class="card-title">Notification Settings</span></div>
+        <div style="padding:18px;display:flex;flex-direction:column;gap:14px">
+          <div class="frow" style="margin:0"><label>Notify this account on new tickets</label>
+            <select class="light-input" id="notif-sel" style="width:auto;min-width:240px"><option value="">— select account —</option></select>
+          </div>
+          <div class="frow" style="margin:0"><label>Auto-reply template</label>
+            <textarea class="light-input" id="autoreply-tmpl" style="min-height:70px" placeholder="Hi {{name}}, your ticket {{ticket_id}} has been created. We'll respond within 24 hours."></textarea>
+          </div>
+          <button class="btn btn-primary" style="width:auto" onclick="saveGmailSettings()">Save Settings</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PUBLIC LINK ── -->
+    <div class="page" id="page-publink">
+      <div class="page-header">
+        <div class="page-header-left"><h2>Public Ticket Link</h2><p>Share with customers to submit support tickets.</p></div>
+      </div>
+      <div class="link-hero">
+        <h3>Your Customer Ticket Link</h3>
+        <p>Anyone with this link can submit a ticket — no login required.</p>
+        <div class="link-box">
+          <span class="link-txt" id="pub-link-txt">Loading…</span>
+          <button class="btn-copy" id="copy-btn" onclick="copyLink()">Copy</button>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header"><span class="card-title">Preview Form</span></div>
+          <div style="padding:18px">
+            <p style="font-size:13px;color:var(--text2);margin-bottom:14px">Preview what your customers see when they open the link.</p>
+            <button class="btn btn-secondary" onclick="previewPub()">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              Preview
+            </button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Embed Code</span></div>
+          <div style="padding:18px">
+            <div class="code-block">&lt;iframe src="<span id="embed-url" style="color:var(--accent)">…</span>"<br>&nbsp; width="100%" height="700"<br>&nbsp; frameborder="0"<br>&nbsp; style="border-radius:12px"&gt;<br>&lt;/iframe&gt;</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SETTINGS ── -->
+    <div class="page" id="page-settings">
+      <div class="page-header"><div class="page-header-left"><h2>Settings</h2><p>System configuration.</p></div></div>
+      <div style="max-width:580px;display:flex;flex-direction:column;gap:18px">
+        <div class="card">
+          <div class="card-header"><span class="card-title">My Account</span></div>
+          <div style="padding:18px;display:flex;flex-direction:column;gap:14px">
+            <div class="frow" style="margin:0"><label>Username</label><input class="light-input" id="set-user" value="admin"></div>
+            <div class="frow" style="margin:0"><label>New Password</label><input class="light-input" type="text" id="set-pass" placeholder="Leave blank to keep current"></div>
+            <button class="btn btn-primary" style="width:auto" onclick="saveMyAccount()">Update Account</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Ticket Settings</span></div>
+          <div style="padding:18px;display:flex;flex-direction:column;gap:14px">
+            <div class="frow" style="margin:0"><label>Ticket ID Prefix</label><input class="light-input" id="set-prefix" maxlength="6" value="IHA"></div>
+            <button class="btn btn-primary" style="width:auto" onclick="saveTicketSettings()">Save</button>
+          </div>
+        </div>
+        <div class="card danger-zone">
+          <div class="card-header"><span class="card-title danger-title">Danger Zone</span></div>
+          <div style="padding:18px">
+            <p style="font-size:13px;color:var(--text2);margin-bottom:12px">Permanently delete all tickets. This cannot be undone.</p>
+            <button class="btn btn-danger btn-sm" onclick="clearTickets()">Delete All Tickets</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+</div>
+
+<!-- ════════════════════════════════
+     PUBLIC TICKET FORM
+════════════════════════════════ -->
+<div id="view-submit" class="view">
+  <div class="pub-card">
+    <div class="pub-header">
+      <div class="pub-header-brand">
+        <svg width="160" height="46" viewBox="0 0 160 46" fill="none">
+          <polygon points="20,2 38,12 38,32 20,42 2,32 2,12" fill="none" stroke="#22c55e" stroke-width="2"/>
+          <polygon points="20,8 32,15 32,29 20,36 8,29 8,15" fill="rgba(34,197,94,0.1)"/>
+          <text x="20" y="27" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif" font-weight="800" font-size="14" fill="#22c55e">E</text>
+          <text x="46" y="20" font-family="Plus Jakarta Sans,sans-serif" font-weight="800" font-size="16" fill="white" letter-spacing="-0.3">ERP</text>
+          <text x="46" y="38" font-family="Plus Jakarta Sans,sans-serif" font-weight="700" font-size="13" fill="#22c55e" letter-spacing="2">IHA</text>
+          <rect x="46" y="41" width="42" height="2" rx="1" fill="#22c55e" opacity="0.4"/>
+        </svg>
+      </div>
+      <h1 id="pub-h1">Submit a Support Ticket</h1>
+      <p>Our team will respond within 24 hours.</p>
+    </div>
+    <div class="pub-body" id="pub-form-body">
+      <div id="pub-alert" style="display:none;background:var(--redbg);border:1px solid #fca5a5;color:var(--red);border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;margin-bottom:14px"></div>
+      <div class="frow"><label>Full Name <span class="req">*</span></label><input class="light-input" id="p-name" placeholder="Your full name"></div>
+      <div class="frow"><label>Email <span class="req">*</span></label><input class="light-input" type="email" id="p-email" placeholder="you@example.com"></div>
+      <div class="frow-2">
+        <div class="frow" style="margin:0"><label>Category</label>
+          <select class="light-input" id="p-cat">
+            <option>General</option><option>Technical</option><option>Billing</option>
+            <option>Feature Request</option><option>Bug Report</option><option>Other</option>
+          </select>
+        </div>
+        <div class="frow" style="margin:0"><label>Priority</label>
+          <select class="light-input" id="p-pri">
+            <option>Low</option><option selected>Medium</option><option>High</option><option>Urgent</option>
+          </select>
+        </div>
+      </div>
+      <div class="frow"><label>Subject <span class="req">*</span></label><input class="light-input" id="p-sub" placeholder="Brief description"></div>
+      <div class="frow"><label>Description <span class="req">*</span></label><textarea class="light-input" id="p-desc" placeholder="Describe your issue in detail…"></textarea></div>
+      <button class="btn btn-primary btn-full" onclick="pubSubmit()">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"/></svg>
+        Submit Ticket
+      </button>
+          </div>
+    <div class="pub-success" id="pub-success">
+      <div class="success-circle"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+      <h2 style="font-size:22px;font-weight:800;margin-bottom:8px">Ticket Submitted!</h2>
+      <p style="color:var(--text2);margin-bottom:18px">We'll respond to your email shortly.</p>
+      <div class="ticket-ref" id="pub-ref">IHA-0000</div>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:20px">Confirmation sent to your email.</p>
+      <button class="btn btn-secondary" onclick="resetPub()">Submit Another</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ TICKET DETAIL MODAL ════ -->
+<div class="modal-overlay" id="tm">
+  <div class="modal">
+    <div class="modal-header">
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+          <span class="ticket-id" id="tm-id"></span>
+          <span id="tm-status"></span>
+          <span id="tm-priority"></span>
+        </div>
+        <h3 id="tm-title"></h3>
+      </div>
+      <button class="close-btn" onclick="closeModal('tm')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="ticket-meta-grid" id="tm-meta"></div>
+      <div style="margin-bottom:18px"><h4 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:8px">Description</h4><p id="tm-desc" style="font-size:14px;line-height:1.7"></p></div>
+      <div style="margin-bottom:18px">
+        <h4 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:8px">Update Status</h4>
+        <div style="display:flex;gap:7px;flex-wrap:wrap">
+          <button class="btn btn-secondary btn-sm" onclick="updateStatus('Open')">Open</button>
+          <button class="btn btn-warning btn-sm" onclick="updateStatus('In Progress')">In Progress</button>
+          <button class="btn btn-sm" style="background:var(--accentbg);color:var(--accent);border:1px solid var(--accentborder)" onclick="updateStatus('Closed')">Closed</button>
+        </div>
+      </div>
+      <div>
+        <h4 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:8px">Assign To</h4>
+        <select class="light-input" id="tm-assign" style="width:auto;min-width:200px;margin-bottom:14px" onchange="assignTicket()"><option value="">— Unassigned —</option></select>
+        <h4 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:8px">Reply via Gmail</h4>
+        <div id="tm-gmail-sel" style="margin-bottom:8px"></div>
+        <div class="reply-form">
+          <div class="reply-form-head"><span id="tm-reply-to">Reply to: —</span><span style="color:var(--text3)">via Gmail</span></div>
+          <textarea class="reply-textarea" id="tm-reply" placeholder="Type your reply…"></textarea>
+          <div class="reply-form-foot">
+            <span style="font-size:12px;color:var(--text3)">Sent from your connected Gmail</span>
+            <button class="btn btn-primary btn-sm" style="width:auto" onclick="sendReply()">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"/></svg>
+              Send Reply
+            </button>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--border)">
+        <button class="btn btn-danger btn-sm" onclick="deleteTicket()">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+          Delete Ticket
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ USER MODAL ════ -->
+<div class="modal-overlay" id="um">
+  <div class="modal modal-sm">
+    <div class="modal-header"><h3 id="um-title">Add User</h3><button class="close-btn" onclick="closeModal('um')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button></div>
+    <div class="modal-body">
+      <div id="um-err" style="display:none;background:var(--redbg);border:1px solid #fca5a5;color:var(--red);border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;margin-bottom:14px"></div>
+      <div class="frow"><label>Full Name <span class="req">*</span></label><input class="light-input" id="um-name" placeholder="Full name"></div>
+      <div class="frow"><label>Email <span class="req">*</span></label><input class="light-input" type="email" id="um-email" placeholder="user@erpihia.com"></div>
+      <div class="frow"><label>Username <span class="req">*</span></label><input class="light-input" id="um-uname" placeholder="username"></div>
+      <div class="frow"><label>Password <span class="req">*</span></label><input class="light-input" type="text" id="um-pass" placeholder="Set password"></div>
+      <div class="frow"><label>Role</label>
+        <select class="light-input" id="um-role">
+          <option value="Admin">Admin — Full access</option>
+          <option value="Agent" selected>Agent — Manage tickets</option>
+          <option value="Viewer">Viewer — Read only</option>
+        </select>
+      </div>
+      <div class="frow"><label>Department</label><input class="light-input" id="um-dept" placeholder="e.g. Support, Finance, IT"></div>
+      <input type="hidden" id="um-editing-id">
+      <button class="btn btn-primary btn-full" style="margin-top:4px" onclick="saveUser()">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+        <span id="um-btn-txt">Create User</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ NEW TICKET MODAL ════ -->
+<div class="modal-overlay" id="ntm">
+  <div class="modal modal-sm">
+    <div class="modal-header"><h3>New Ticket</h3><button class="close-btn" onclick="closeModal('ntm')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button></div>
+    <div class="modal-body">
+      <div class="frow"><label>Name</label><input class="light-input" id="nt-name" placeholder="Customer name"></div>
+      <div class="frow"><label>Email</label><input class="light-input" type="email" id="nt-email" placeholder="customer@example.com"></div>
+      <div class="frow-2">
+        <div class="frow" style="margin:0"><label>Category</label><select class="light-input" id="nt-cat"><option>General</option><option>Technical</option><option>Billing</option><option>Feature Request</option><option>Bug Report</option><option>Other</option></select></div>
+        <div class="frow" style="margin:0"><label>Priority</label><select class="light-input" id="nt-pri"><option>Low</option><option selected>Medium</option><option>High</option><option>Urgent</option></select></div>
+      </div>
+      <div class="frow"><label>Subject <span class="req">*</span></label><input class="light-input" id="nt-sub" placeholder="Issue summary"></div>
+      <div class="frow"><label>Description</label><textarea class="light-input" id="nt-desc" style="min-height:70px" placeholder="Details…"></textarea></div>
+      <button class="btn btn-primary btn-full" onclick="createTicket()">Create Ticket</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><span id="toast-msg"></span></div>
+
+<script>
+// ════════════════════════════════
+//  STATE
+// ════════════════════════════════
+const SK = 'erp_iha_v1';
+function loadState(){try{const r=localStorage.getItem(SK);if(r)return JSON.parse(r);}catch(e){}return null;}
+function save(){try{localStorage.setItem(SK,JSON.stringify(S));}catch(e){}}
+
+const DEF = {
+  tickets:[],
+  users:[{id:1,name:'Zulfee Mithani',email:'admin@erpihia.com',username:'admin',password:'admin123',role:'Admin',dept:'Management',active:true,createdAt:new Date().toISOString()}],
+  gmailAccounts:[],
+  activities:[],
+  settings:{prefix:'IHA',notifGmail:'',autoReply:'Hi {{name}}, your ticket {{ticket_id}} has been received. We\'ll respond within 24 hours.\n\nERP IHA Support Team'},
+  ticketCounter:1
+};
+
+let S = loadState() || JSON.parse(JSON.stringify(DEF));
+let currentSession = null; // logged in user object
+let currentTicketId = null;
+
+// Seed demo tickets
+if(S.tickets.length===0){
+  S.tickets=[
+    {id:1,subject:'Login issue on mobile app',name:'Sara Ahmed',email:'sara@test.com',cat:'Technical',pri:'High',status:'Open',desc:'Cannot login on iPhone 15. App crashes immediately after entering credentials. Tried reinstalling but same issue.',created:new Date(Date.now()-86400000*2).toISOString(),source:'public',assignedTo:null},
+    {id:2,subject:'Invoice not received for March',name:'Omar Malik',email:'omar@biz.com',cat:'Billing',pri:'Medium',status:'In Progress',desc:'I have not received my invoice for March 2025. Please send to my registered email urgently.',created:new Date(Date.now()-86400000).toISOString(),source:'public',assignedTo:1},
+    {id:3,subject:'Request: Dark mode feature',name:'Zara Khan',email:'zara@user.com',cat:'Feature Request',pri:'Low',status:'Open',desc:'Please add dark mode to the dashboard. Many users work late hours and it would greatly reduce eye strain.',created:new Date(Date.now()-3600000*6).toISOString(),source:'public',assignedTo:null},
+    {id:4,subject:'URGENT: Export crashes system',name:'Ali Hassan',email:'ali@corp.com',cat:'Bug Report',pri:'Urgent',status:'Open',desc:'Every PDF export crashes the application. Started after last week\'s update. This is blocking our finance team from completing month-end reports.',created:new Date(Date.now()-3600000*2).toISOString(),source:'public',assignedTo:null},
+  ];
+  S.ticketCounter=5;
+  S.activities=[
+    {text:'Urgent ticket from Ali Hassan — PDF export crash',time:'2h ago',type:'urgent'},
+    {text:'Ticket IHA-0003 assigned to Support Team',time:'5h ago',type:'update'},
+    {text:'Zara Khan submitted a new ticket',time:'6h ago',type:'new'},
+    {text:'Reply sent to Omar Malik',time:'1d ago',type:'email'},
+  ];
+  save();
+}
+
+// ════════════════════════════════
+//  HELPERS
+// ════════════════════════════════
+function tRef(id){return (S.settings.prefix||'IHA')+'-'+String(id).padStart(4,'0');}
+function timeAgo(iso){const d=Date.now()-new Date(iso).getTime(),m=Math.floor(d/60000);if(m<1)return'just now';if(m<60)return m+'m ago';const h=Math.floor(m/60);if(h<24)return h+'h ago';return Math.floor(h/24)+'d ago';}
+function avColor(name){const c=['#d1fae5','#dbeafe','#fef3c7','#fce7f3','#ede9fe','#fef2f2'];const t=['#065f46','#1e3a8a','#78350f','#9d174d','#4c1d95','#7f1d1d'];const i=(name||'?').charCodeAt(0)%c.length;return{bg:c[i],text:t[i]};}
+function initials(n){return(n||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);}
+function pbadge(p){const m={Urgent:'badge-urgent',High:'badge-high',Medium:'badge-medium',Low:'badge-low'};return`<span class="badge ${m[p]||'badge-neutral'}"><span class="pdot pdot-${p.toLowerCase()}"></span>${p}</span>`;}
+function sbadge(s){const m={Open:'badge-open','In Progress':'badge-progress',Closed:'badge-closed'};return`<span class="badge ${m[s]||''}"> ${s}</span>`;}
+function rbadge(r){const m={Admin:'badge-admin',Agent:'badge-agent',Viewer:'badge-viewer'};return`<span class="badge ${m[r]||'badge-neutral'}">${r}</span>`;}
+function canEdit(){return currentSession&&(currentSession.role==='Admin');}
+
+// ════════════════════════════════
+//  VIEWS
+// ════════════════════════════════
+function showView(v){
+  document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+  document.getElementById('view-'+v).classList.add('active');
+  if(v==='admin')refreshAll();
+  if(v==='submit'){}
+}
+
+function showPage(name,nav){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(nav)nav.classList.add('active');
+  const titles={dashboard:'Dashboard',tickets:'All Tickets',users:'User Management',gmail:'Gmail Accounts',publink:'Public Ticket Link',settings:'Settings'};
+  document.getElementById('topbar-title').textContent=titles[name]||name;
+  if(name==='dashboard')renderDashboard();
+  if(name==='tickets')renderTickets();
+  if(name==='users')renderUsers();
+  if(name==='gmail')renderGmailPage();
+  if(name==='publink')renderPubLink();
+  if(name==='settings')renderSettings();
+  // Hide users nav for non-admins
+  if(name==='users'&&!canEdit()){showToast('Admin access required');showPage('dashboard',document.querySelector('.nav-item'));}
+}
+
+// ════════════════════════════════
+//  AUTH
+// ════════════════════════════════
+function doLogin(){
+  const u=document.getElementById('l-user').value.trim();
+  const p=document.getElementById('l-pass').value.trim();
+  const err=document.getElementById('login-err');
+  const user=S.users.find(x=>(x.username===u||x.email===u)&&x.password===p&&x.active!==false);
+  if(user){
+    currentSession=user;
+    err.style.display='none';
+    updateSidebarUser();
+    showView('admin');
+  } else {
+    err.style.display='block';
+  }
+}
+
+function doLogout(){currentSession=null;showView('login');}
+
+function updateSidebarUser(){
+  if(!currentSession)return;
+  const av=avColor(currentSession.name);
+  document.getElementById('sidebar-avatar').style.background=av.bg;
+  document.getElementById('sidebar-avatar').style.color=av.text;
+  document.getElementById('sidebar-avatar').textContent=initials(currentSession.name);
+  document.getElementById('sidebar-uname').textContent=currentSession.name;
+  document.getElementById('sidebar-urole').textContent=currentSession.role;
+  document.getElementById('topbar-user-chip').innerHTML=`<div class="avatar" style="background:${av.bg};color:${av.text};width:24px;height:24px;font-size:10px">${initials(currentSession.name)}</div><span>${currentSession.name}</span>`;
+  // Hide user management from non-admins
+  document.getElementById('nav-users').style.display=canEdit()?'flex':'none';
+}
+
+// ════════════════════════════════
+//  DASHBOARD
+// ════════════════════════════════
+function renderDashboard(){
+  const t=S.tickets;
+  document.getElementById('s-total').textContent=t.length;
+  document.getElementById('s-open').textContent=t.filter(x=>x.status==='Open').length;
+  document.getElementById('s-closed').textContent=t.filter(x=>x.status==='Closed').length;
+  document.getElementById('s-urgent').textContent=t.filter(x=>x.pri==='Urgent').length;
+  document.getElementById('nav-open-badge').textContent=t.filter(x=>x.status==='Open').length;
+
+  const recent=[...t].sort((a,b)=>new Date(b.created)-new Date(a.created)).slice(0,5);
+  const dr=document.getElementById('dash-recent');
+  if(!recent.length){dr.innerHTML='<div class="empty"><p>No tickets yet.</p></div>';return;}
+  dr.innerHTML=`<table><thead><tr><th>Subject</th><th>Status</th><th>Time</th></tr></thead><tbody>
+    ${recent.map(t=>`<tr onclick="openTicket(${t.id})">
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500">${t.subject}</td>
+      <td>${sbadge(t.status)}</td>
+      <td style="font-size:12px;color:var(--text3)">${timeAgo(t.created)}</td>
+    </tr>`).join('')}
+  </tbody></table>`;
+
+  const actColors={urgent:'var(--redbg)',new:'var(--bluebg)',update:'var(--yellowbg)',email:'var(--accentbg)'};
+  const actIcons={
+    urgent:`<svg fill="none" viewBox="0 0 24 24" stroke="#dc2626" stroke-width="2" width="13" height="13"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>`,
+    new:`<svg fill="none" viewBox="0 0 24 24" stroke="#1d4ed8" stroke-width="2" width="13" height="13"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>`,
+    update:`<svg fill="none" viewBox="0 0 24 24" stroke="#ca8a04" stroke-width="2" width="13" height="13"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>`,
+    email:`<svg fill="none" viewBox="0 0 24 24" stroke="#1a6b3c" stroke-width="2" width="13" height="13"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>`,
+  };
+  document.getElementById('act-feed').innerHTML=S.activities.slice(0,8).map(a=>`
+    <li class="act-item">
+      <div class="act-icon" style="background:${actColors[a.type]||'var(--bg3)'}">${actIcons[a.type]||''}</div>
+      <div><div class="act-text">${a.text}</div><div class="act-time">${a.time}</div></div>
+    </li>`).join('');
+}
+
+// ════════════════════════════════
+//  TICKETS
+// ════════════════════════════════
+function renderTickets(){
+  const q=(document.getElementById('t-search').value||'').toLowerCase();
+  const fs=document.getElementById('f-status').value;
+  const fp=document.getElementById('f-priority').value;
+  let tickets=[...S.tickets].sort((a,b)=>new Date(b.created)-new Date(a.created));
+  if(q) tickets=tickets.filter(t=>t.subject.toLowerCase().includes(q)||t.name.toLowerCase().includes(q)||t.email.toLowerCase().includes(q));
+  if(fs) tickets=tickets.filter(t=>t.status===fs);
+  if(fp) tickets=tickets.filter(t=>t.pri===fp);
+  const tbody=document.getElementById('t-tbody');
+  const empty=document.getElementById('t-empty');
+  if(!tickets.length){tbody.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  tbody.innerHTML=tickets.map(t=>{
+    const av=avColor(t.name);
+    const assignedUser=t.assignedTo?S.users.find(u=>u.id===t.assignedTo):null;
+    return`<tr onclick="openTicket(${t.id})">
+      <td><span class="ticket-id">${tRef(t.id)}</span></td>
+      <td><div style="max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600">${t.subject}</div><div style="font-size:11px;color:var(--text3)">${t.cat}</div></td>
+      <td><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="background:${av.bg};color:${av.text}">${initials(t.name)}</div><div><div style="font-weight:500">${t.name}</div><div style="font-size:11px;color:var(--text3)">${t.email}</div></div></div></td>
+      <td><span class="tag">${t.cat}</span></td>
+      <td>${pbadge(t.pri)}</td>
+      <td>${sbadge(t.status)}</td>
+      <td>${assignedUser?`<div style="display:flex;align-items:center;gap:6px"><div class="avatar" style="background:${avColor(assignedUser.name).bg};color:${avColor(assignedUser.name).text};width:22px;height:22px;font-size:9px">${initials(assignedUser.name)}</div><span style="font-size:12px">${assignedUser.name.split(' ')[0]}</span></div>`:'<span style="color:var(--text3);font-size:12px">—</span>'}</td>
+      <td style="font-size:12px;color:var(--text3)">${timeAgo(t.created)}</td>
+      <td><button class="btn-icon" onclick="event.stopPropagation();openTicket(${t.id})"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button></td>
+    </tr>`;
+  }).join('');
+}
+
+// ════════════════════════════════
+//  TICKET MODAL
+// ════════════════════════════════
+function openTicket(id){
+  const t=S.tickets.find(x=>x.id===id);
+  if(!t)return;
+  currentTicketId=id;
+  const av=avColor(t.name);
+  document.getElementById('tm-id').textContent=tRef(t.id);
+  document.getElementById('tm-title').textContent=t.subject;
+  document.getElementById('tm-status').innerHTML=sbadge(t.status);
+  document.getElementById('tm-priority').innerHTML=pbadge(t.pri);
+  document.getElementById('tm-desc').textContent=t.desc||'No description provided.';
+  document.getElementById('tm-reply-to').textContent='Reply to: '+t.email;
+  document.getElementById('tm-reply').value='';
+
+  document.getElementById('tm-meta').innerHTML=`
+    <div class="meta-item"><span class="meta-lbl">Submitter</span><div style="display:flex;align-items:center;gap:8px;margin-top:2px"><div class="avatar" style="background:${av.bg};color:${av.text}">${initials(t.name)}</div><span class="meta-val">${t.name}</span></div></div>
+    <div class="meta-item"><span class="meta-lbl">Email</span><span class="meta-val" style="color:var(--blue)">${t.email}</span></div>
+    <div class="meta-item"><span class="meta-lbl">Category</span><span class="meta-val">${t.cat}</span></div>
+    <div class="meta-item"><span class="meta-lbl">Submitted</span><span class="meta-val">${new Date(t.created).toLocaleString()}</span></div>`;
+
+  // Assign select
+  const asel=document.getElementById('tm-assign');
+  asel.innerHTML='<option value="">— Unassigned —</option>'+S.users.filter(u=>u.active!==false).map(u=>`<option value="${u.id}" ${t.assignedTo===u.id?'selected':''}>${u.name} (${u.role})</option>`).join('');
+
+  // Gmail select
+  const gsel=document.getElementById('tm-gmail-sel');
+  if(S.gmailAccounts.length){
+    gsel.innerHTML=`<select class="light-input" id="tm-from-gmail" style="width:auto;min-width:220px">${S.gmailAccounts.map(g=>`<option value="${g.email}">${g.name} (${g.email})</option>`).join('')}</select>`;
+  } else {
+    gsel.innerHTML=`<div style="background:var(--yellowbg);border:1px solid #fde68a;border-radius:var(--radius-sm);padding:9px 13px;font-size:13px;color:var(--yellow)">No Gmail connected. <a href="#" onclick="closeModal('tm');showPage('gmail',null)" style="color:var(--accent);font-weight:600">Connect one →</a></div>`;
+  }
+  document.getElementById('tm').classList.add('open');
+}
+
+function updateStatus(s){
+  if(!currentTicketId)return;
+  const t=S.tickets.find(x=>x.id===currentTicketId);
+  if(!t)return;
+  t.status=s;
+  S.activities.unshift({text:`Ticket ${tRef(t.id)} marked as "${s}"`,time:'just now',type:'update'});
+  save();
+  document.getElementById('tm-status').innerHTML=sbadge(s);
+  renderTickets();renderDashboard();
+  showToast('Status updated: '+s);
+}
+
+function assignTicket(){
+  if(!currentTicketId)return;
+  const t=S.tickets.find(x=>x.id===currentTicketId);
+  const val=document.getElementById('tm-assign').value;
+  t.assignedTo=val?parseInt(val):null;
+  const user=val?S.users.find(u=>u.id===parseInt(val)):null;
+  S.activities.unshift({text:`Ticket ${tRef(t.id)} assigned to ${user?user.name:'nobody'}`,time:'just now',type:'update'});
+  save();renderTickets();
+  showToast(user?`Assigned to ${user.name}`:'Unassigned');
+}
+
+function deleteTicket(){
+  if(!currentTicketId||!confirm('Delete this ticket permanently?'))return;
+  S.tickets=S.tickets.filter(x=>x.id!==currentTicketId);
+  save();closeModal('tm');renderTickets();renderDashboard();
+  showToast('Ticket deleted');
+}
+
+function sendReply(){
+  const body=document.getElementById('tm-reply').value.trim();
+  if(!body){showToast('Type a reply first');return;}
+  const t=S.tickets.find(x=>x.id===currentTicketId);
+  const from=document.getElementById('tm-from-gmail')?.value||'Gmail';
+  S.activities.unshift({text:`Reply sent to ${t?.email} from ${from}`,time:'just now',type:'email'});
+  save();
+  document.getElementById('tm-reply').value='';
+  showToast('Reply sent to '+(t?.email||'customer'));
+  renderDashboard();
+}
+
+// ════════════════════════════════
+//  NEW TICKET
+// ════════════════════════════════
+function openNewTicketModal(){document.getElementById('ntm').classList.add('open');}
+function createTicket(){
+  const name=document.getElementById('nt-name').value.trim();
+  const email=document.getElementById('nt-email').value.trim();
+  const sub=document.getElementById('nt-sub').value.trim();
+  if(!sub){showToast('Subject is required');return;}
+  const id=S.ticketCounter++;
+  S.tickets.unshift({id,subject:sub,name:name||'(no name)',email:email||'',cat:document.getElementById('nt-cat').value,pri:document.getElementById('nt-pri').value,status:'Open',desc:document.getElementById('nt-desc').value.trim(),created:new Date().toISOString(),source:'admin',assignedTo:null});
+  S.activities.unshift({text:`Ticket created manually: "${sub}"`,time:'just now',type:'new'});
+  save();closeModal('ntm');renderTickets();renderDashboard();
+  showToast('Ticket created: '+tRef(id));
+}
+
+// ════════════════════════════════
+//  USERS
+// ════════════════════════════════
+function renderUsers(){
+  const grid=document.getElementById('users-grid');
+  const empty=document.getElementById('users-empty');
+  const users=S.users;
+  if(!users.length){grid.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  grid.innerHTML=users.map(u=>{
+    const av=avColor(u.name);
+    const isMe=currentSession&&currentSession.id===u.id;
+    return`<div class="user-card">
+      <div class="avatar" style="background:${av.bg};color:${av.text};width:44px;height:44px;font-size:16px;font-weight:700">${initials(u.name)}</div>
+      <div class="user-card-info">
+        <div class="user-card-name">${u.name} ${isMe?'<span style="font-size:11px;color:var(--text3);font-weight:400">(you)</span>':''}</div>
+        <div class="user-card-email">${u.email}</div>
+        <div style="margin-top:5px;display:flex;align-items:center;gap:6px">
+          ${rbadge(u.role)}
+          ${u.dept?`<span class="tag">${u.dept}</span>`:''}
+          <span class="badge ${u.active===false?'badge-inactive':'badge-active'}">${u.active===false?'Inactive':'Active'}</span>
+        </div>
+      </div>
+      <div class="user-card-actions">
+        ${canEdit()?`<button class="btn-icon" title="Edit" onclick="editUser(${u.id})"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
+        ${!isMe?`<button class="btn-icon" title="${u.active===false?'Activate':'Deactivate'}" onclick="toggleUser(${u.id})" style="${u.active===false?'color:var(--accent)':'color:var(--yellow)'}">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="${u.active===false?'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z':'M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636'}"/></svg>
+        </button>
+        <button class="btn-icon" title="Delete" onclick="deleteUser(${u.id})" style="color:var(--red)">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+        </button>`:''}`:''
+        }
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openUserModal(uid){
+  document.getElementById('um-err').style.display='none';
+  document.getElementById('um-title').textContent=uid?'Edit User':'Add User';
+  document.getElementById('um-btn-txt').textContent=uid?'Save Changes':'Create User';
+  document.getElementById('um-editing-id').value=uid||'';
+  if(uid){
+    const u=S.users.find(x=>x.id===uid);
+    if(!u)return;
+    document.getElementById('um-name').value=u.name;
+    document.getElementById('um-email').value=u.email;
+    document.getElementById('um-uname').value=u.username;
+    document.getElementById('um-pass').value=u.password;
+    document.getElementById('um-role').value=u.role;
+    document.getElementById('um-dept').value=u.dept||'';
+  } else {
+    ['um-name','um-email','um-uname','um-pass','um-dept'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('um-role').value='Agent';
+  }
+  document.getElementById('um').classList.add('open');
+}
+
+function editUser(id){if(!canEdit())return;openUserModal(id);}
+
+function saveUser(){
+  const err=document.getElementById('um-err');
+  const name=document.getElementById('um-name').value.trim();
+  const email=document.getElementById('um-email').value.trim();
+  const uname=document.getElementById('um-uname').value.trim();
+  const pass=document.getElementById('um-pass').value.trim();
+  const role=document.getElementById('um-role').value;
+  const dept=document.getElementById('um-dept').value.trim();
+  const editingId=document.getElementById('um-editing-id').value;
+
+  if(!name||!email||!uname){err.textContent='Name, email, and username are required.';err.style.display='block';return;}
+  if(!editingId&&!pass){err.textContent='Password is required for new users.';err.style.display='block';return;}
+
+  // Check duplicates
+  const dup=S.users.find(u=>String(u.id)!==editingId&&(u.username===uname||u.email===email));
+  if(dup){err.textContent='Username or email already exists.';err.style.display='block';return;}
+
+  if(editingId){
+    const u=S.users.find(x=>String(x.id)===editingId);
+    u.name=name;u.email=email;u.username=uname;u.role=role;u.dept=dept;
+    if(pass)u.password=pass;
+    // update session if editing self
+    if(currentSession&&currentSession.id===u.id)currentSession=u;
+    showToast('User updated: '+name);
+  } else {
+    const id=Date.now();
+    S.users.push({id,name,email,username:uname,password:pass,role,dept,active:true,createdAt:new Date().toISOString()});
+    S.activities.unshift({text:`New user added: ${name} (${role})`,time:'just now',type:'new'});
+    showToast('User created: '+name);
+  }
+  save();closeModal('um');renderUsers();updateSidebarUser();
+}
+
+function toggleUser(id){
+  const u=S.users.find(x=>x.id===id);
+  if(!u||!canEdit())return;
+  u.active=u.active===false?true:false;
+  save();renderUsers();
+  showToast(u.active?`${u.name} activated`:`${u.name} deactivated`);
+}
+
+function deleteUser(id){
+  if(!canEdit())return;
+  const u=S.users.find(x=>x.id===id);
+  if(!u)return;
+  if(u.role==='Admin'&&S.users.filter(x=>x.role==='Admin'&&x.active!==false).length<=1){showToast('Cannot delete the last admin');return;}
+  if(!confirm(`Delete user "${u.name}"? This cannot be undone.`))return;
+  S.users=S.users.filter(x=>x.id!==id);
+  save();renderUsers();
+  showToast('User deleted: '+u.name);
+}
+
+// ════════════════════════════════
+//  GMAIL
+// ════════════════════════════════
+function renderGmailPage(){
+  const list=document.getElementById('gmail-list');
+  list.innerHTML=S.gmailAccounts.map((g,i)=>`
+    <div class="gmail-card">
+      <svg width="36" height="36" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:14px;font-weight:700">${g.name}</div>
+        <div style="font-size:12px;color:var(--text2)">${g.email}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span class="badge ${g.active?'badge-active':'badge-inactive'}"><span style="width:6px;height:6px;border-radius:50%;background:${g.active?'var(--accent)':'var(--text3)'};display:inline-block;margin-right:4px"></span>${g.active?'Active':'Inactive'}</span>
+        <button class="btn btn-secondary btn-sm" onclick="toggleGmail(${i})">${g.active?'Disable':'Enable'}</button>
+        <button class="btn btn-danger btn-sm" onclick="removeGmail(${i})">Remove</button>
+      </div>
+    </div>`).join('')||'';
+
+  const nsel=document.getElementById('notif-sel');
+  nsel.innerHTML='<option value="">— select account —</option>'+S.gmailAccounts.map(g=>`<option value="${g.email}" ${S.settings.notifGmail===g.email?'selected':''}>${g.name} (${g.email})</option>`).join('');
+  const tmpl=document.getElementById('autoreply-tmpl');
+  if(tmpl&&!tmpl.value)tmpl.value=S.settings.autoReply||'';
+}
+
+function expandGmailZone(){
+  const z=document.getElementById('gmail-zone');
+  const ph=document.getElementById('gmail-zone-ph');
+  const form=document.getElementById('gmail-zone-form');
+  if(form.style.display==='none'){z.classList.add('expanded');ph.style.display='none';form.style.display='block';}
+}
+function collapseGmailZone(e){
+  e&&e.stopPropagation();
+  const z=document.getElementById('gmail-zone');
+  document.getElementById('gmail-zone-ph').style.display='flex';
+  document.getElementById('gmail-zone-form').style.display='none';
+  z.classList.remove('expanded');
+}
+function gmailOAuth(e){e.stopPropagation();showToast('In production: redirects to Google OAuth consent screen');}
+function addGmail(e){
+  e.stopPropagation();
+  const email=document.getElementById('gm-email').value.trim();
+  if(!email){showToast('Enter a Gmail address');return;}
+  const name=document.getElementById('gm-name').value.trim()||email.split('@')[0];
+  S.gmailAccounts.push({name,email,active:true});
+  S.activities.unshift({text:`Gmail ${email} connected`,time:'just now',type:'email'});
+  save();collapseGmailZone();
+  document.getElementById('gm-name').value='';
+  document.getElementById('gm-email').value='';
+  document.getElementById('gm-pass').value='';
+  renderGmailPage();
+  showToast('Gmail connected: '+email);
+}
+function toggleGmail(i){S.gmailAccounts[i].active=!S.gmailAccounts[i].active;save();renderGmailPage();}
+function removeGmail(i){if(!confirm('Remove this Gmail account?'))return;S.gmailAccounts.splice(i,1);save();renderGmailPage();showToast('Account removed');}
+function saveGmailSettings(){S.settings.notifGmail=document.getElementById('notif-sel').value;S.settings.autoReply=document.getElementById('autoreply-tmpl').value;save();showToast('Gmail settings saved');}
+
+// ════════════════════════════════
+//  PUBLIC LINK
+// ════════════════════════════════
+function getLink(){return window.location.origin+window.location.pathname+'?v=submit';}
+function renderPubLink(){
+  const l=getLink();
+  document.getElementById('pub-link-txt').textContent=l;
+  document.getElementById('embed-url').textContent=l;
+}
+function copyLink(){
+  navigator.clipboard.writeText(getLink()).then(()=>{
+    const b=document.getElementById('copy-btn');
+    b.textContent='✓ Copied!';b.classList.add('copied');
+    setTimeout(()=>{b.textContent='Copy';b.classList.remove('copied');},2000);
+  });
+}
+function previewPub(){showView('submit');}
+
+// ════════════════════════════════
+//  SETTINGS
+// ════════════════════════════════
+function renderSettings(){
+  document.getElementById('set-user').value=currentSession?currentSession.username:'admin';
+  document.getElementById('set-prefix').value=S.settings.prefix||'IHA';
+}
+function saveMyAccount(){
+  if(!currentSession)return;
+  const u=currentSession.username;const p=document.getElementById('set-pass').value.trim();
+  const newU=document.getElementById('set-user').value.trim();
+  if(!newU){showToast('Username cannot be empty');return;}
+  const user=S.users.find(x=>x.id===currentSession.id);
+  if(user){user.username=newU;if(p)user.password=p;currentSession=user;}
+  save();showToast('Account updated');
+}
+function saveTicketSettings(){S.settings.prefix=document.getElementById('set-prefix').value.trim().toUpperCase()||'IHA';save();showToast('Settings saved');}
+function clearTickets(){if(!confirm('Delete ALL tickets?'))return;S.tickets=[];S.ticketCounter=1;save();renderTickets();renderDashboard();showToast('All tickets cleared');}
+
+// ════════════════════════════════
+//  PUBLIC FORM
+// ════════════════════════════════
+function pubSubmit(){
+  const name=document.getElementById('p-name').value.trim();
+  const email=document.getElementById('p-email').value.trim();
+  const sub=document.getElementById('p-sub').value.trim();
+  const desc=document.getElementById('p-desc').value.trim();
+  const alert=document.getElementById('pub-alert');
+  if(!name||!email||!sub||!desc){alert.textContent='Please fill in all required fields.';alert.style.display='block';return;}
+  if(!/^[^@]+@[^@]+\.[^@]+$/.test(email)){alert.textContent='Please enter a valid email address.';alert.style.display='block';return;}
+  alert.style.display='none';
+  const id=S.ticketCounter++;
+  S.tickets.unshift({id,subject:sub,name,email,cat:document.getElementById('p-cat').value,pri:document.getElementById('p-pri').value,status:'Open',desc,created:new Date().toISOString(),source:'public',assignedTo:null});
+  S.activities.unshift({text:`${name} submitted: "${sub}"`,time:'just now',type:'new'});
+  save();
+  document.getElementById('pub-ref').textContent=tRef(id);
+  document.getElementById('pub-form-body').style.display='none';
+  document.getElementById('pub-success').style.display='block';
+}
+function resetPub(){
+  document.getElementById('pub-form-body').style.display='block';
+  document.getElementById('pub-success').style.display='none';
+  ['p-name','p-email','p-sub','p-desc'].forEach(id=>document.getElementById(id).value='');
+}
+
+// ════════════════════════════════
+//  UTILS
+// ════════════════════════════════
+function closeModal(id){document.getElementById(id).classList.remove('open');if(id==='tm')currentTicketId=null;}
+function showToast(msg){const t=document.getElementById('toast');document.getElementById('toast-msg').textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
+function refreshAll(){renderDashboard();renderTickets();}
+
+// Close modals on bg click
+['tm','um','ntm'].forEach(id=>{
+  document.getElementById(id).addEventListener('click',function(e){if(e.target===this)closeModal(id);});
+});
+// Enter key login
+document.getElementById('l-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+
+// ════════════════════════════════
+//  INIT
+// ════════════════════════════════
+(function(){
+  const p=new URLSearchParams(window.location.search);
+  if(p.get('v')==='submit'){showView('submit');}
+  else{showView('login');}
+})();
+</script>
+</body>
+</html>
